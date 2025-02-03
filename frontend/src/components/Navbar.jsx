@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import logo from "../images/logo.png"
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import logo from "../images/logo.png";
+import { Link, useNavigate } from 'react-router-dom';
 import Avatar from 'react-avatar';
 import { MdLightMode } from "react-icons/md";
 import { BsGridFill } from "react-icons/bs";
@@ -11,7 +11,22 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");;
+  const [error, setError] = useState("");
+  const [isLightMode, setIsLightMode] = useState(false);
+
+  // Effect to check the theme in localStorage and apply it
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'light') {
+      setIsLightMode(true);
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
+    } else {
+      setIsLightMode(false);
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
+    }
+  }, []);
 
   useEffect(() => {
     fetch(api_base_url + "/getUserDetails", {
@@ -40,6 +55,21 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
     window.location.reload();
   }
 
+  // Toggle the light mode
+  const toggleLightMode = () => {
+    if (isLightMode) {
+      setIsLightMode(false);
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      setIsLightMode(true);
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
   return (
     <>
       <div className="navbar flex items-center justify-between px-[100px] h-[80px] bg-[#141414]">
@@ -47,10 +77,10 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
           <img className='w-[150px] cursor-pointer' src={logo} alt="" />
         </div>
         <div className="links flex items-center gap-2">
-          <Link>Home</Link>
-          <Link>About</Link>
-          <Link>Contact</Link>
-          <Link>Services</Link>
+          <Link to={'/'}>Home</Link>
+          <Link to={'/About'}>About</Link>
+          <Link to={'/Contact'}>Contact</Link>
+          <Link to={'/Services'}>Services</Link>
           <button onClick={logout} className='btnBlue !bg-red-500 min-w-[120px] ml-2 hover:!bg-red-600'>Logout</button>
           <Avatar onClick={() => { toggleClass(".dropDownNavbar", "hidden") }} name={data ? data.name : ""} size="40" round="50%" className=' cursor-pointer ml-2' />
         </div>
@@ -59,7 +89,9 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
           <div className='py-[10px] border-b-[1px] border-b-[#fff]'>
             <h3 className='text-[17px]' style={{ lineHeight: 1 }}>{data ? data.name : ""}</h3>
           </div>
-          <i className='flex items-center gap-2 mt-3 mb-2 cursor-pointer' style={{ fontStyle: "normal" }}><MdLightMode className='text-[20px]' /> Light mode</i>
+          <i className='flex items-center gap-2 mt-3 mb-2 cursor-pointer' style={{ fontStyle: "normal" }} onClick={toggleLightMode}>
+            <MdLightMode className='text-[20px]' /> {isLightMode ? 'Dark' : 'Light'} mode
+          </i>
           <i onClick={() => setIsGridLayout(!isGridLayout)} className='flex items-center gap-2 mt-3 mb-2 cursor-pointer' style={{ fontStyle: "normal" }}><BsGridFill className='text-[20px]' /> {isGridLayout ? "List" : "Grid"} layout</i>
         </div>
       </div>
@@ -67,4 +99,4 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
   )
 }
 
-export default Navbar
+export default Navbar;
